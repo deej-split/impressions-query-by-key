@@ -28,7 +28,10 @@ exports.handler = async (event) => {
             if(value === null) {
                 value = '';
             }
-            if(key === 'time' || key === 'splitVersionNumber') {
+            if(key === 'time') {
+                // convert to seconds
+                item[key] = {'N' : '' + value / 1000 };
+            } else if (key === 'splitVersionNumber') {
                 item[key] = {'N' : '' + value};
             } else {
                 item[key] = {'S' : value};
@@ -60,7 +63,7 @@ exports.handler = async (event) => {
         }
 
         console.log('preparing to batch ' + page.length + ' impressions to ddb');
-        console.log('putRequest is ' + getSizeInBytes(page) / 1024 + 'kb');
+        // console.log('putRequest is ' + getSizeInBytes(page) / 1024 + 'kb');
         await ddb.batchWriteItem(params, function(err, data) {
             if (err) {
                console.log(err);

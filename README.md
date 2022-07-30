@@ -14,15 +14,25 @@ https://<lambda function url>/<split_key>
 
 *search* uses a global secondary index to pull all the impressions for a specific split key, they return them as JSON form as a response.
 
+Impressions are automatically deleted from the DynamoDB table using its Time to Live (TTL) feature on the *time* column of the table, which is in seconds since the epoch (not the usual Split milliseconds since epoch).  Currently, the largest window supported is seven days.  Impressions older than seven days are automatically deleted from the impressions table.
+
+[[Configuring TTL][https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-before-you-start.html]
+
 ## Installation
 
-Currently, the author would have to do an installation.  The lambdas must be set up with permission to DynamoDB, and a suitable DynamoDB table must be created for the backing store, with Global Secondary Index on key.
+Currently, the author would have to do the installation.  The lambdas must be set up with permission to DynamoDB, and a suitable DynamoDB table must be created for the backing store, with Global Secondary Index on key.  TTL must be set up on the *time* attribute of the DynamoDB table.
 
 Provisioning this for a customer should be easy though.
 
-## Limitations
+## Known Issues
 
-There is currently no attempt at aging out impressions.  The DynamoDB table will grow unbound.  This can be corrected in a future version if it proves necessary.
+When first creating the database and installing its Global Secondary Index, the search lambda may get errors:
+
+```
+ValidationException: Cannot read from backfilling global secondary index: key-index
+```
+
+These errors should resolve within a few minutes.
 
 david.martin@split.io
 
