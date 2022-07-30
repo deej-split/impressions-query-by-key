@@ -1,0 +1,16 @@
+{
+  "name": "digest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1185.0",
+    "node-gzip": "^1.1.2",
+    "util": "^0.12.4"
+  }
+}
