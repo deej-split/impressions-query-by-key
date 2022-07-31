@@ -34,5 +34,7 @@ ValidationException: Cannot read from backfilling global secondary index: key-in
 
 These errors should resolve within a few minutes.
 
+DynamoDB returns up to 1MB of data with a single query.  This should be hundreds, or nearly a thousand impressions.  I have not tested the response when more impressions are returned, but I expect it to be a truncated result (maybe with no indication it was truncated).  
+
 david.martin@split.io
 
