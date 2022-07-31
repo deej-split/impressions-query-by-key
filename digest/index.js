@@ -30,7 +30,7 @@ exports.handler = async (event) => {
             }
             if(key === 'time') {
                 // convert to seconds
-                item[key] = {'N' : '' + value / 1000 };
+                item[key] = {'N' : '' + Math.round(value / 1000) };
             } else if (key === 'splitVersionNumber') {
                 item[key] = {'N' : '' + value};
             } else {
