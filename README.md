@@ -10,6 +10,30 @@ https://<lambda function url>/<split_key>
 
 ... returns a JSON list of abridged impressions for that split key.
 
+```json
+[
+    {
+        "treatment": "on",
+        "split": "next_step",
+        "time": 1659231532349,
+        "key": "dmartin-dogs"
+    },
+    {
+        "treatment": "red",
+        "split": "multivariant_demo",
+        "time": 1659233452345,
+        "key": "dmartin-dogs"
+    },
+    {
+        "treatment": "on",
+        "split": "next_step",
+        "time": 1659231531796,
+        "key": "dmartin-dogs"
+    },
+    ...
+]
+```
+
 ## How does it work?
 
 *digest* is a lambda impressions webhook POST.  It writes impressions in batches of twenty-five to a backing DynamoDB table.  You register it with the Split Impressions Webhook.
