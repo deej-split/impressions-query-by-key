@@ -10,19 +10,17 @@ https://<lambda function url>/<split_key>
 
 ## How does it work?
 
-*digest* is a lambda impressions webhook.  It writes impressions in batches of twenty-five to a backing DynamoDB table.
+*digest* is a lambda impressions webhook POST.  It writes impressions in batches of twenty-five to a backing DynamoDB table.  You register it with the Split Impressions Webhook.
 
-*search* uses a global secondary index to pull all the impressions for a specific split key, they return them as JSON form as a response.
+*search* uses a global secondary index to pull all the impressions for a specific split key, then return them in JSON form as a response.  It is a GET function URL, its only paramter the Split key you want to query.
 
-Impressions are automatically deleted from the DynamoDB table using its Time to Live (TTL) feature on the *time* column of the table, which is in seconds since the epoch (not the usual Split milliseconds since epoch).  Currently, the largest window supported is seven days.  Impressions older than seven days are automatically deleted from the impressions table.
+Impressions are automatically deleted from the DynamoDB table using its Time to Live (TTL) feature on the *ttl* column of the table, which is in seconds since the epoch (not the usual Split milliseconds since epoch).  You can control the TTL by editing the *digest* lambda script; the script stamps impressions with a TTL when they are loaded to DynamoDB.  Impressions older than the ttl are automatically deleted from the impressions table.
 
 [[Configuring TTL][https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-before-you-start.html]
 
 ## Installation
 
-Currently, the author would have to do the installation.  The lambdas must be set up with permission to DynamoDB, and a suitable DynamoDB table must be created for the backing store, with Global Secondary Index on key.  TTL must be set up on the *time* attribute of the DynamoDB table.
-
-Provisioning this for a customer should be easy though.
+The lambdas must be set up with permission to DynamoDB, and a suitable DynamoDB table must be created for the backing store, with Global Secondary Index on key.  Screenshots are included with this repository.  TTL must be set up on the *ttl* attribute of the DynamoDB table.
 
 ## Known Issues
 
