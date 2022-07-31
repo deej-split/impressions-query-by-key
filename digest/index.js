@@ -24,20 +24,23 @@ exports.handler = async (event) => {
     for(const impression of json) {
         let item = {};
         Object.keys(impression).forEach((key) => {
-            let value = impression[key];
+        let value = impression[key];
             if(value === null) {
                 value = '';
             }
             if(key === 'time') {
-                // convert to seconds
-                item[key] = {'N' : '' + Math.round(value / 1000) };
+                item[key] = {'N' : '' + value};
             } else if (key === 'splitVersionNumber') {
                 item[key] = {'N' : '' + value};
             } else {
                 item[key] = {'S' : value};
             }
         });
-        item['ID'] = {'S' : uuidv4()};
+        item['ID'] = {'S' : uuidv4() };
+        const now = new Date().getTime();
+        const nowInSeconds = Math.round(now / 1000);
+        const ttl = nowInSeconds + (60 * 60 * 24 * 7);
+	    item['ttl'] = {'N' : '' + ttl }; 
 
         putRequests.push({PutRequest: {Item: item}});
     }
