@@ -103,7 +103,7 @@ Digest gets a POST function.  Search gets a GET function. You probably also want
  - *DIGEST_IMPRESSIONS* is the expected name
  - *ID* as partition key, *key* as sort key
  - From Indexes tab, create a new Global Secondary Index. *key* as partition key, *key-index* as index name.
- - From Additional settings, turn on TTL with 'ttl' as attribute name
+ - From Additional settings, turn on TTL with *ttl* as attribute name
 
 Generate some impressions by exercising a split.  Use Live Tail to check the impressions are received by Split.  Use Cloud Watch to see your digest lambda is writing the impressions to DynamoDB table.  Call your search lambda with one of the keys you saw received to verify you are a success.
 
