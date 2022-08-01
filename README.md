@@ -60,3 +60,52 @@ DynamoDB returns up to 1MB of data with a single query.  This should be hundreds
 
 david.martin@split.io
 
+
+
+## ROUGH DRAFT OF INSTRUCTIONS
+
+```
+git clone https://github.com/splitio/impressions-query-by-key.git
+```
+
+### ADVANCED
+If you want to change the 7 day default time to live on impressions, you can edit the digest/index.js to change the default as suits you.
+
+```javascript
+const ttl = nowInSeconds + (60 * 60 * 24 * 7);
+```
+Change 7 to 14 for a fourteen day rentention, etc.
+
+## Creating the Lambda ZIPs
+
+In each sub-directory (digest and search):
+
+```
+npm install
+zip -r digest.zip *
+```
+
+Or search.zip in the search subdirectory.  This should create a zip file with index.js and a richly defined node_modules/ subdirectory.  Most of the dependency code is on the aws-sdk, necessary to use DynamoDB.
+
+## AWS 
+
+From AWS, create new lambdas, one for digest and one for search.
+
+Upload the zip you created above from the Code section of the lambda config.
+
+- Give the Lambdas DynamoDB permission
+- Give the Lambdas function URLs
+
+Digest gets a POST function.  Search gets a GET function. You probably also want to enable CORS support, and maybe accept all headers, with a *
+
+## DynamoDB table...
+
+ - *DIGEST_IMPRESSIONS* is the expected name
+ - *ID* as partition key, *key* as sort key
+ - From Indexes tab, create a new Global Secondary Index. *key* as partition key, *key-index* as index name.
+ - From Additional settings, turn on TTL with 'ttl' as attribute name
+
+Generate some impressions by exercising a split.  Use Live Tail to check the impressions are received by Split.  Use Cloud Watch to see your digest lambda is writing the impressions to DynamoDB table.  Call your search lambda with one of the keys you saw received to verify you are a success.
+
+  
+
