@@ -98,6 +98,8 @@ Upload the zip you created above from the Code section of the lambda config.
 
 Digest gets a POST function.  Search gets a GET function. You probably also want to enable CORS support, and maybe accept all headers, with a *
 
+Digest lambdas POST function URL is the webhook URL to install in Split.  Split impressions webhook.
+
 ## DynamoDB table...
 
  - *DIGEST_IMPRESSIONS* is the expected name
