@@ -34,6 +34,17 @@ https://<lambda function url>/<split_key>
 ]
 ```
 
+# UPDATE
+
+I have provided an index.html as sample "front end".  The page presents a search box for key to query. You can sort by column and search results.  
+
+You must substitute the URL of your lambda function in order to use it:
+
+```javascript
+async function getSearchResults(query) {
+   const url = 'https://<lambda function url>/' + query;
+```
+
 ## How does it work?
 
 *digest* is a lambda impressions webhook POST.  It writes impressions in batches of twenty-five to a backing DynamoDB table.  You register it with the Split Impressions Webhook.
