@@ -1,0 +1,96 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.12.1/b-2.2.3/sl-1.4.0/datatables.min.css"/>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.12.1/b-2.2.3/sl-1.4.0/datatables.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>	
+		<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>  
+
+		<script>
+			async function getSearchResults(query) {
+				const url = 'https://r7s3on5um2yrw6puh25nqsdpqa0xqyjp.lambda-url.us-west-2.on.aws/' + query;
+				console.log('url: ' + url);
+				let results = [];
+				await axios({
+					method: 'get',
+					url: url,
+					headers:{
+						'Content-Type': 'application/json'
+					}
+				}).then(function (response) {
+					// console.log(response.data);
+					for(const impression of response.data) {
+						results.push(
+							{
+								'key': impression.key,
+								'split': impression.split,
+								'treatment': impression.treatment,
+								'time': impression.time
+							});
+					}
+				}).catch(function (error) {
+					console.log(error);
+				});
+
+				console.log('returning ' + results.length + " results");
+				return results;
+			}
+
+			function search() {
+				const query = document.getElementById("query").value;
+				console.log('search! ' + query);
+				drawSearchResultsTable(query);
+			}
+
+			async function drawSearchResultsTable(query) {
+				$('#list-properties-table').append('<caption style="caption-side: top-right; font-size: 40px;">Search Results</caption>');
+
+				const results = await getSearchResults(query);
+
+				if ( $.fn.DataTable.isDataTable( '#search-results-table' ) ) {
+					const table = $('#search-results-table').DataTable();
+					console.log('clearing table');
+					table.clear();
+					console.log('adding new rows to table');
+					table.rows.add(results);
+					table.draw();		
+				} else {
+					const table = $('#search-results-table')
+						.DataTable({
+							dom: 'frtipB',
+							data: results,
+							columns: getDataColumns(),
+							paging: false,
+							pageLength: 25,
+							order: [[ 1, 'asc' ]],
+							columnDefs: [
+		                       {"type":"html","targets":0},
+		                       {"type":"html","targets":1},
+		                       {"type":"html","targets":2},
+		                       {"type":"unix","targets":3,"render": 
+		                       		function (data, type, full, meta) {
+		                       			return new Date(data);
+		                       		}
+		                   	   }
+		                      ],
+							select: true			
+						});	
+				}
+			}
+
+			const fields = ['key', 'split', 'treatment', 'time'];
+			function getDataColumns() {
+				let result = [];
+				for(const field of fields) {
+					result.push({data: field, sTitle: field});
+				}	
+				return result;
+			}
+
+		</script>
+	</head>
+<body>
+	<div><input id="query" type="text"/><input type="submit" value="search" onclick="search()"/>
+	<table id="search-results-table"/>
+</body>
+</html>
