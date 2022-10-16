@@ -29,42 +29,83 @@ exports.handler = async (event) => {
         }
     };    
     console.log(params);
-
     let results = [];
-    try {
-        await ddb.query(params, function(err, data) {
-            if (err) {
-                console.log(err);
-                const response = {
-                    statusCode: 500,
-                    body: err
-                }
-                return response;
-            } else {
-                data.Items.forEach(function(element, index, array) {
-                    if(element.key && element.key.S === key) {
-                        results.push(
-                            {
-                                key: element.key.S, 
-                                split: element.split.S, 
-                                treatment: element.treatment.S,
-                                time: parseInt(element.time.N)
-                            });
-                    }
-                });
-            }
-        }).promise();
-    } catch (error) {
-        console.log(error);
-        const response = {
-            statusCode: 500,
-            body: err
+    let code = 200;
+
+    let promise = new Promise((resolve, reject) => {
+      ddb.query(params, function(err, data) {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(data);
         }
-        return response;
+      });
+    });
+
+    let databaseItems = [];
+
+    let lastEvaluatedKey;
+    await promise.then(data => {
+      code = 200;
+      lastEvaluatedKey = data.LastEvaluatedKey;
+      databaseItems = [...data.Items];
+    }).catch(error => {
+      code = 500;
+      results = error;
+    })
+    // console.log(databaseItems);
+
+    // scan maxes out at 1MB of data. continue scanning if there is more data to read
+    console.log('query for more? ' + (typeof lastEvaluatedKey !== 'undefined'));
+    while (typeof lastEvaluatedKey !== 'undefined') {
+      console.log('Querying for more...');
+        const params = 
+        {
+            TableName : 'DIGEST_IMPRESSIONS',
+            IndexName: 'key-index',
+            KeyConditionExpression: '#theKey = :splitKey',
+            ExpressionAttributeNames: {
+                '#theKey': 'key'
+            },
+            ExpressionAttributeValues:{
+                ':splitKey': { 'S' : key } 
+            },
+            ExclusiveStartKey: lastEvaluatedKey
+        };   
+
+      let promise = new Promise((resolve, reject) => {
+        ddb.query(params, function(err, data) {
+          if(err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }          
+        });
+      });
+
+      await promise.then(data =>  {
+        code = 200;
+        databaseItems = [...databaseItems, ...data.Items];
+        lastEvaluatedKey = data.LastEvaluatedKey;
+      }).catch(error => {
+        code = 500;
+        results = error;
+      });
+    }
+
+    for(const item of databaseItems) {
+        // console.log(item);
+        results.push(
+            {
+                key: item.key.S, 
+                split: item.split.S, 
+                treatment: item.treatment.S,
+                time: parseInt(item.time.N)
+            }); 
     }
 
     const response = {
-        statusCode: 200,
+        statusCode: code,
         body: results
     };
     return response;
