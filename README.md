@@ -121,4 +121,6 @@ Digest lambdas POST function URL is the webhook URL to install in Split.  Split 
 Generate some impressions by exercising a split.  Use Live Tail to check the impressions are received by Split.  Use Cloud Watch to see your digest lambda is writing the impressions to DynamoDB table.  Call your search lambda with one of the keys you saw received to verify you are a success.
 
   
+## Questions?
 
+david.martin@split.io
